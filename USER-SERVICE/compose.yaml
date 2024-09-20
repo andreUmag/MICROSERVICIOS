@@ -1,10 +1,31 @@
+version: '3.8'
+
 services:
-  mysql:
-    image: 'mysql:latest'
+  mysql-db-users:
+    image: mysql:latest
+    container_name: bdUsuarios
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      MYSQL_ROOT_PASSWORD: rootPassword
+      MYSQL_DATABASE: Usuarios
+      MYSQL_USER: usuarioUsers
+      MYSQL_PASSWORD: passwordUsers
     ports:
-      - '3306'
+      - "3306:3306"
+    volumes:
+      - mysql-data-users:/var/lib/mysql
+
+  user-service:
+    image: user-service
+    container_name: user-service
+    build: .
+    depends_on:
+      - mysql-db-users
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db-users:3306/Usuarios
+      SPRING_DATASOURCE_USERNAME: usuarioUsers
+      SPRING_DATASOURCE_PASSWORD: passwordUsers
+
+volumes:
+  mysql-data-users:

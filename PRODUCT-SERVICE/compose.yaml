@@ -1,10 +1,31 @@
+version: '3.8'
+
 services:
-  mysql:
-    image: 'mysql:latest'
+  mysql-db-products:
+    image: mysql:latest
+    container_name: bdProductos
     environment:
-      - 'MYSQL_DATABASE=mydatabase'
-      - 'MYSQL_PASSWORD=secret'
-      - 'MYSQL_ROOT_PASSWORD=verysecret'
-      - 'MYSQL_USER=myuser'
+      MYSQL_ROOT_PASSWORD: rootPassword
+      MYSQL_DATABASE: Productos
+      MYSQL_USER: usuarioProducts
+      MYSQL_PASSWORD: passwordProducts
     ports:
-      - '3306'
+      - "3308:3306"
+    volumes:
+      - mysql-data-products:/var/lib/mysql
+
+  product-service:
+    image: product-service
+    container_name: product-service
+    build: .
+    depends_on:
+      - mysql-db-products
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql-db-products:3306/Productos
+      SPRING_DATASOURCE_USERNAME: usuarioProducts
+      SPRING_DATASOURCE_PASSWORD: passwordProducts
+
+volumes:
+  mysql-data-products:
